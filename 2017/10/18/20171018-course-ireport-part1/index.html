@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="报表," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="欢迎参与讨论，转载请注明出处。 前言先看最后的效果图：我们以问答的形式阐述上图中的难点：1. 图中的合并行是如何实现的？答：主报表中包含了子报表，并设置了‘想要合并行’的相关属性。2. 图中的小计和合计是如何实现的？答：把子报表统计的值传入主报表。 数据准备　　ireport有多种数据填报方式，本例是用JavaBean填充，如果您已经是老油条，请直接跳过前段部分，直接看最后的技术实现。  Java">
+<meta name="keywords" content="报表">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ireport合并单元格，以及存在子报表情况下的小计和合计">
+<meta property="og:url" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/index.html">
+<meta property="og:site_name" content="LXB&#39;s Blogs">
+<meta property="og:description" content="欢迎参与讨论，转载请注明出处。 前言先看最后的效果图：我们以问答的形式阐述上图中的难点：1. 图中的合并行是如何实现的？答：主报表中包含了子报表，并设置了‘想要合并行’的相关属性。2. 图中的小计和合计是如何实现的？答：把子报表统计的值传入主报表。 数据准备　　ireport有多种数据填报方式，本例是用JavaBean填充，如果您已经是老油条，请直接跳过前段部分，直接看最后的技术实现。  Java">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/ireportResult.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-164530.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-171440.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-200505.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-200504.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-203934.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-205725.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-210839.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-212818.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-214506.png">
+<meta property="og:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/20171018-220120.png">
+<meta property="og:updated_time" content="2017-10-18T14:06:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ireport合并单元格，以及存在子报表情况下的小计和合计">
+<meta name="twitter:description" content="欢迎参与讨论，转载请注明出处。 前言先看最后的效果图：我们以问答的形式阐述上图中的难点：1. 图中的合并行是如何实现的？答：主报表中包含了子报表，并设置了‘想要合并行’的相关属性。2. 图中的小计和合计是如何实现的？答：把子报表统计的值传入主报表。 数据准备　　ireport有多种数据填报方式，本例是用JavaBean填充，如果您已经是老油条，请直接跳过前段部分，直接看最后的技术实现。  Java">
+<meta name="twitter:image" content="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/ireportResult.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/"/>
+
+
+
+
+
+  <title>ireport合并单元格，以及存在子报表情况下的小计和合计 | LXB's Blogs</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">LXB's Blogs</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/18/20171018-course-ireport-part1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="monkey_lxb">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/upload/myImage.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LXB's Blogs">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">ireport合并单元格，以及存在子报表情况下的小计和合计</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T09:50:28+08:00">
+                2017-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>欢迎参与讨论，转载请注明出处。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>先看最后的效果图：<br><img src="/2017/10/18/20171018-course-ireport-part1/ireportResult.png" alt=""><br>我们以问答的形式阐述上图中的难点：<br><strong>1. 图中的合并行是如何实现的？</strong><br>答：主报表中包含了子报表，并设置了‘想要合并行’的相关属性。<br><strong>2. 图中的小计和合计是如何实现的？</strong><br>答：把子报表统计的值传入主报表。</p>
+<h2 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h2><p>　　<code>ireport</code>有多种数据填报方式，本例是用<code>JavaBean</code>填充，如果您已经是老油条，请直接跳过前段部分，直接看最后的技术实现。</p>
+<ol>
+<li><p>Java实体类</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Poorder.class</div><div class="line">关键属性：</div><div class="line">    private String FBillNO;//单据编号</div><div class="line">    private BillType billType;//单据类型</div><div class="line">    private Date FPurchaseDate;//采购日期</div><div class="line">    private List&lt;PoorderEntry&gt; poorderEntrys = new ArrayList&lt;PoorderEntry&gt;();//采购订单明细</div><div class="line"></div><div class="line">PoorderEntry.class</div><div class="line">关键属性：</div><div class="line">    private Integer FSeq;//序号</div><div class="line">    private Material material;//物料实体类</div><div class="line">    private PoorderEntryF poorderEntryF;//财务实体类</div><div class="line"></div><div class="line">说明：`Poorder.class`和`PoorderEntry.class`是主要的两个实体类，存在一对多的关系，其它实体类比如`BillType`、`PoorderEntryF`只是数据的载体，存放了相关信息。</div></pre></td></tr></table></figure>
+</li>
+<li><p>在数据库中填写假数据，并且编写好查询的接口，作为报表的数据源。</p>
+</li>
+</ol>
+<h2 id="制作模板"><a href="#制作模板" class="headerlink" title="制作模板"></a>制作模板</h2><h4 id="主报表相关配置"><a href="#主报表相关配置" class="headerlink" title="主报表相关配置"></a>主报表相关配置</h4><ol>
+<li>新建名称为<code>POORDER_TEMPLATE</code>作为主报表。</li>
+<li>在ireport中设置classpath属性，即项目编译输出的路径，如果已经设置了请忽略。</li>
+<li>点击<img src="/2017/10/18/20171018-course-ireport-part1/20171018-164530.png" alt="">选择Java为数据源。<br><br><img src="/2017/10/18/20171018-course-ireport-part1/20171018-171440.png" alt=""><br><br>注意：如果<code>Read attributes</code>点击没有反应，要检查步骤2的classpath路径中是否包含全部的实体类，比如<code>Poorder.class</code>中还包含了<code>BillType.class</code>，所以必须包含此实体类，否则会设置失败。</li>
+<li>将主报表Fields中的变量拖入到<code>Detail 1</code>band中，并在<code>Column Header</code>band中添加列名，注意宽度要上下一致。注意Fields中的<code>poorderEntrys</code>变量不是用于显示，而是作为子报表的数据源，后面会提到。</li>
+<li><img src="/2017/10/18/20171018-course-ireport-part1/20171018-200505.png" alt="">同时选中要合并行的Fields，设置属性<code>Stretch Type</code>为<code>Relative to Band Heigh</code>,注意，这是关键。</li>
+</ol>
+<h4 id="子报表相关配置"><a href="#子报表相关配置" class="headerlink" title="子报表相关配置"></a>子报表相关配置</h4><ol>
+<li>在组件面板中拖动<code>Subreport</code>控件到主报表的<code>Detail 1</code>band中，软件会自动弹出向导，依次选择<code>Create a new report</code>-&gt;<code>Blank A4</code> 下一步-&gt;<code>Empty datasoure</code>-&gt;下一步(没有可选的Fields)-&gt;下一步(不填写任何Group)-&gt;<code>Report</code> <code>name</code>、<code>Location</code>、<code>File</code>可以自己定义，下面的选择第一个选项：<code>Store the directory name in a parameter</code>，（即选择相对路径，在java代码中需要构建map，并且添加key值为<code>SUBREPORT_DIR</code>,用于指定子报表的路径，后面会提到）-&gt;Use a JRDatasource expression 在框中填写<code>new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($F{poorderEntrys})</code>。<br><br><br>*注意：不按照向导也可以，在主报表界面，点击子报表，查看右边栏的属性也可以进行设置。<br></li>
+<li>点开子报表，选择JavaBean为数据源，java填写<code>PoorderEntry</code>类，把需要的属性添加到<code>Fields</code>中。</li>
+<li>把除<code>Deatil 1</code> band以外的band高度设置为0，或者在左侧栏在对应的band上右键点击删除。</li>
+<li>将Fields中的变量拖动到<code>Deatil 1</code>中<img src="/2017/10/18/20171018-course-ireport-part1/20171018-200504.png" alt=""></li>
+<li>注意：子报表的Fields中，有物料<code>material</code>,在导出报表时，是一个Material对象，因此在获取物料名称时，将<code>Text Field Expression</code>设置为：<code>$F{material}.getFName()</code>，其它情况以此类推。</li>
+</ol>
+<h4 id="统计相关属性配置"><a href="#统计相关属性配置" class="headerlink" title="统计相关属性配置"></a>统计相关属性配置</h4><p>　　通过以上的步骤，相信已经达到可以动态合并行的效果。接下来要实现的是小计、合计。<br>a. 在子报表中，添加<code>sumAmount</code>和<code>sumFQty</code>变量，前者用于统计金额的总数量，后者用于统计总物料数量。点击<code>sumAmount</code>，属性面板如图所示：<img src="/2017/10/18/20171018-course-ireport-part1/20171018-203934.png" alt=""></p>
+<ul>
+<li><strong>Name</strong>:sumAmount</li>
+<li><strong>Variable Class</strong>:java.math.Bigdecimal 注意这里设置的java类型和要统计的Amount的java类型要相同，否则求和会出现异常。</li>
+<li><strong>Calculation</strong>:Sum</li>
+<li><strong>Reset type</strong>:report</li>
+<li><strong>Increment type</strong>:None</li>
+<li><strong>Variable Expression</strong>:<code>$F{poorderEntryF}.getFAmount()</code><br><br>关于<code>sumFQty</code>和以上设置的相同，只是<strong>Variable Expression</strong>中设置为:<code>$F{FQty}</code><br>b. 打开主报表，创建<code>getSumAmount</code>、<code>getSumFQty</code>和<code>totalAmount</code>变量，点击<code>getSumAmount</code>，属性面板如下图所示：<img src="/2017/10/18/20171018-course-ireport-part1/20171018-205725.png" alt=""></li>
+<li><strong>Name</strong>:getSumAmount</li>
+<li><strong>Variable Class</strong>:java.math.Bigdecimal 注意这里设置的java类型和要统计的<code>Amount</code>的java类型要相同，否则求和会出现异常。</li>
+<li><strong>Calculation</strong>:Nothing 这里不进行计算，只用于从子报表获取数据</li>
+<li><strong>Reset type</strong>:report</li>
+<li><strong>Increment type</strong>:None</li>
+<li><strong>Variable Expression</strong>: 不填<br>注意：<code>getSumAmount</code>和<code>getSumFQty</code>属性设置都同上，两个属性都用于小计。<code>totalAmount</code>的属性和以上基本相同，只是<strong>Calculation</strong>属性为<code>Sum</code>,用于整个报表范围的统计。<br>c. 将<code>getSumAmount</code>、<code>totalAmount</code>和<code>getSumFQty</code>拖动到主报表的<code>Detail 1</code>中，如图所示：<img src="/2017/10/18/20171018-course-ireport-part1/20171018-210839.png" alt=""></li>
+<li>上图红色圈起来的有四个元素，分别是两个<code>Static Text</code>和两个<code>Text Field</code>,同时选中这四个元素，设置属性<code>Position Type</code>为<code>Fix Relative to Bottom</code>,这样才不会和上面的元素重叠。</li>
+<li>同时选中图中红色圈1的两个Text Field(即<code>getSumAmount</code>和<code>getSumFQty</code>)设置属性<code>Evaluation Time</code>为<code>Band</code>；选中圈2的Text Field(即<code>totalAmount</code>)设置属性<code>Evaluation Time</code>为<code>Report</code>,注意圈2所在Band为<code>Summary</code> <img src="/2017/10/18/20171018-course-ireport-part1/20171018-212818.png" alt=""><br>d. 在主报表中，点击子报表，设置属性<code>Return Values</code>：添加三项设置如下图所示：<img src="/2017/10/18/20171018-course-ireport-part1/20171018-214506.png" alt="">用于主表和子表的属性传递，其中前两项的属性一致，且<code>Calculation type</code>为<code>Nothing</code>,因为两者只是简单的数据传递；而最后一项的属性<code>Calculation type</code>为<code>Sum</code>,用于整个报表的统计。<br>　　<strong>至此小计和合计功能已经实现。</strong>
+　　<h4 id="外观和字体配置"><a href="#外观和字体配置" class="headerlink" title="外观和字体配置"></a>外观和字体配置</h4></li>
+</ul>
+<ol>
+<li>需要给组成表格的每一个元素设置边框，这样可以实现表格的效果。</li>
+<li>设置各个元素居中显示</li>
+<li>在要显示中文的元素中，设置三个属性：<code>Pdf Font name is now</code>属性为：<code>STSong-Light</code>,<code>Pdf Embedded</code>打钩，<code>Pdf Encoding</code>属性为：<code>UniGB-UCS2-H (Chinese Simplified)</code>，以此避免导出PDF中文乱码的问题。同时在项目中要导入亚洲字体itext-**.jar和iTextAsian.jar</li>
+</ol>
+<h4 id="JAVA相关"><a href="#JAVA相关" class="headerlink" title="JAVA相关"></a>JAVA相关</h4><ol>
+<li>导入jasperreports-**.jar包。</li>
+<li>相关代码如下：<br><img src="/2017/10/18/20171018-course-ireport-part1/20171018-220120.png" alt=""><br>其中<code>JasperHelper</code>工具类如下：站在了大神的肩膀上！</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div><div class="line">158</div><div class="line">159</div><div class="line">160</div><div class="line">161</div><div class="line">162</div><div class="line">163</div><div class="line">164</div><div class="line">165</div><div class="line">166</div><div class="line">167</div><div class="line">168</div><div class="line">169</div><div class="line">170</div><div class="line">171</div><div class="line">172</div><div class="line">173</div><div class="line">174</div><div class="line">175</div><div class="line">176</div><div class="line">177</div><div class="line">178</div><div class="line">179</div><div class="line">180</div><div class="line">181</div><div class="line">182</div><div class="line">183</div><div class="line">184</div><div class="line">185</div><div class="line">186</div><div class="line">187</div><div class="line">188</div><div class="line">189</div><div class="line">190</div><div class="line">191</div><div class="line">192</div><div class="line">193</div><div class="line">194</div><div class="line">195</div><div class="line">196</div><div class="line">197</div><div class="line">198</div><div class="line">199</div><div class="line">200</div><div class="line">201</div><div class="line">202</div><div class="line">203</div><div class="line">204</div><div class="line">205</div><div class="line">206</div><div class="line">207</div><div class="line">208</div><div class="line">209</div><div class="line">210</div><div class="line">211</div><div class="line">212</div><div class="line">213</div><div class="line">214</div><div class="line">215</div><div class="line">216</div><div class="line">217</div><div class="line">218</div><div class="line">219</div><div class="line">220</div><div class="line">221</div><div class="line">222</div><div class="line">223</div><div class="line">224</div><div class="line">225</div><div class="line">226</div><div class="line">227</div><div class="line">228</div><div class="line">229</div><div class="line">230</div><div class="line">231</div><div class="line">232</div><div class="line">233</div><div class="line">234</div><div class="line">235</div><div class="line">236</div><div class="line">237</div><div class="line">238</div><div class="line">239</div><div class="line">240</div><div class="line">241</div><div class="line">242</div><div class="line">243</div><div class="line">244</div><div class="line">245</div><div class="line">246</div><div class="line">247</div><div class="line">248</div><div class="line">249</div><div class="line">250</div><div class="line">251</div><div class="line">252</div><div class="line">253</div><div class="line">254</div><div class="line">255</div><div class="line">256</div><div class="line">257</div><div class="line">258</div><div class="line">259</div><div class="line">260</div><div class="line">261</div><div class="line">262</div><div class="line">263</div><div class="line">264</div><div class="line">265</div><div class="line">266</div><div class="line">267</div><div class="line">268</div><div class="line">269</div><div class="line">270</div><div class="line">271</div><div class="line">272</div><div class="line">273</div><div class="line">274</div><div class="line">275</div><div class="line">276</div><div class="line">277</div><div class="line">278</div><div class="line">279</div><div class="line">280</div><div class="line">281</div><div class="line">282</div><div class="line">283</div><div class="line">284</div><div class="line">285</div><div class="line">286</div><div class="line">287</div><div class="line">288</div><div class="line">289</div><div class="line">290</div><div class="line">291</div><div class="line">292</div><div class="line">293</div><div class="line">294</div><div class="line">295</div><div class="line">296</div><div class="line">297</div><div class="line">298</div><div class="line">299</div><div class="line">300</div><div class="line">301</div><div class="line">302</div><div class="line">303</div><div class="line">304</div><div class="line">305</div><div class="line">306</div><div class="line">307</div><div class="line">308</div><div class="line">309</div><div class="line">310</div><div class="line">311</div><div class="line">312</div><div class="line">313</div><div class="line">314</div><div class="line">315</div><div class="line">316</div><div class="line">317</div><div class="line">318</div><div class="line">319</div><div class="line">320</div><div class="line">321</div><div class="line">322</div><div class="line">323</div><div class="line">324</div><div class="line">325</div><div class="line">326</div><div class="line">327</div></pre></td><td class="code"><pre><div class="line">public class JasperHelper &#123;</div><div class="line">	private static Logger logger = Logger.getLogger(JasperHelper.class);</div><div class="line">	public static final String PRINT_TYPE = &quot;print&quot;;</div><div class="line">	public static final String PDF_TYPE = &quot;pdf&quot;;</div><div class="line">	public static final String EXCEL_TYPE = &quot;excel&quot;;</div><div class="line">	public static final String HTML_TYPE = &quot;html&quot;;</div><div class="line">	public static final String WORD_TYPE = &quot;word&quot;;</div><div class="line"></div><div class="line">	public static void prepareReport(JasperReport jasperReport, String type) &#123;</div><div class="line">		logger.debug(&quot;The method======= prepareReport() start.......................&quot;);</div><div class="line">        /*</div><div class="line">         * 如果导出的是excel，则需要去掉周围的margin</div><div class="line">         */</div><div class="line">		if (&quot;excel&quot;.equals(type))</div><div class="line">			try &#123;</div><div class="line">				Field margin = JRBaseReport.class</div><div class="line">						.getDeclaredField(&quot;leftMargin&quot;);</div><div class="line">				margin.setAccessible(true);</div><div class="line">				margin.setInt(jasperReport, 0);</div><div class="line">				margin = JRBaseReport.class.getDeclaredField(&quot;topMargin&quot;);</div><div class="line">				margin.setAccessible(true);</div><div class="line">				margin.setInt(jasperReport, 0);</div><div class="line">				margin = JRBaseReport.class.getDeclaredField(&quot;bottomMargin&quot;);</div><div class="line">				margin.setAccessible(true);</div><div class="line">				margin.setInt(jasperReport, 0);</div><div class="line">				Field pageHeight = JRBaseReport.class</div><div class="line">						.getDeclaredField(&quot;pageHeight&quot;);</div><div class="line">				pageHeight.setAccessible(true);</div><div class="line">				pageHeight.setInt(jasperReport, 2147483647);</div><div class="line">			&#125; catch (Exception exception) &#123;</div><div class="line">			&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 导出excel</div><div class="line">	 */</div><div class="line">	public static void exportExcel(JasperPrint jasperPrint,</div><div class="line">								   String defaultFilename, HttpServletRequest request,</div><div class="line">								   HttpServletResponse response) throws IOException, JRException &#123;</div><div class="line">        /*</div><div class="line">         * 设置头信息</div><div class="line">         */</div><div class="line">		response.setContentType(&quot;application/vnd.ms-excel&quot;);</div><div class="line">		String defaultname = null;</div><div class="line">		if (defaultFilename.trim() != null &amp;&amp; defaultFilename != null) &#123;</div><div class="line">			defaultname = defaultFilename + &quot;.xls&quot;;</div><div class="line">		&#125; else &#123;</div><div class="line">			defaultname = &quot;export.xls&quot;;</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		response.setHeader(&quot;Content-Disposition&quot;, &quot;attachment; filename=\&quot;&quot;</div><div class="line">				+ URLEncoder.encode(defaultname, &quot;UTF-8&quot;) + &quot;\&quot;&quot;);</div><div class="line"></div><div class="line"></div><div class="line">		ServletOutputStream ouputStream = response.getOutputStream();</div><div class="line">		JRXlsExporter exporter = new JRXlsExporter();</div><div class="line"></div><div class="line">		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);</div><div class="line"></div><div class="line">		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, ouputStream);</div><div class="line"></div><div class="line">		exporter.setParameter(</div><div class="line">				JRXlsExporterParameter.IS_REMOVE_EMPTY_SPACE_BETWEEN_ROWS,</div><div class="line">				Boolean.TRUE); // 删除记录最下面的空行</div><div class="line"></div><div class="line">		exporter.setParameter(JRXlsExporterParameter.IS_ONE_PAGE_PER_SHEET,</div><div class="line">				Boolean.FALSE);// 删除多余的ColumnHeader</div><div class="line">		//</div><div class="line">		exporter.setParameter(JRXlsExporterParameter.IS_WHITE_PAGE_BACKGROUND,</div><div class="line">				Boolean.FALSE);// 显示边框</div><div class="line">		exporter.exportReport();</div><div class="line">		ouputStream.flush();</div><div class="line">		ouputStream.close();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public static enum DocType &#123;</div><div class="line">		PDF, HTML, XLS, XML, RTF</div><div class="line">	&#125;</div><div class="line">	public static JRAbstractExporter getJRExporter(DocType docType) &#123;</div><div class="line">		JRAbstractExporter exporter = null;</div><div class="line">		switch (docType) &#123;</div><div class="line">			case PDF:</div><div class="line">				exporter = new JRPdfExporter();</div><div class="line">				break;</div><div class="line">			case HTML:</div><div class="line">				exporter = new JRHtmlExporter();</div><div class="line">				break;</div><div class="line">			case XLS:</div><div class="line">				exporter = new JExcelApiExporter();</div><div class="line">				break;</div><div class="line">			case XML:</div><div class="line">				exporter = new JRXmlExporter();</div><div class="line">				break;</div><div class="line">			case RTF:</div><div class="line">				exporter = new JRRtfExporter();</div><div class="line">				break;</div><div class="line">		&#125;</div><div class="line">		return exporter;</div><div class="line">	&#125;</div><div class="line">	/**</div><div class="line">	 * 导出pdf，注意此处中文问题，</div><div class="line">	 *</div><div class="line">	 * 这里应该详细说：主要在ireport里变下就行了。看图</div><div class="line">	 *</div><div class="line">	 * 1）在ireport的classpath中加入iTextAsian.jar 2）在ireport画jrxml时，看ireport最左边有个属性栏。</div><div class="line">	 *</div><div class="line">	 * 下边的设置就在点字段的属性后出现。 pdf font name ：STSong-Light ，pdf encoding ：UniGB-UCS2-H</div><div class="line">	 */</div><div class="line">	private static void exportPdf(JasperPrint jasperPrint,</div><div class="line">								  String defaultFilename, HttpServletRequest request,</div><div class="line">								  HttpServletResponse response) throws IOException, JRException &#123;</div><div class="line">		response.setContentType(&quot;application/pdf&quot;);</div><div class="line">		String defaultname = null;</div><div class="line">		if (defaultFilename.trim() != null &amp;&amp; defaultFilename != null) &#123;</div><div class="line">			defaultname = defaultFilename + &quot;.pdf&quot;;</div><div class="line">		&#125; else &#123;</div><div class="line">			defaultname = &quot;export.pdf&quot;;</div><div class="line">		&#125;</div><div class="line">		String fileName = new String(defaultname.getBytes(&quot;GBK&quot;), &quot;ISO8859_1&quot;);</div><div class="line">		response.setHeader(&quot;Content-disposition&quot;, &quot;attachment; filename=&quot;</div><div class="line">				+ fileName);</div><div class="line">		ServletOutputStream ouputStream = response.getOutputStream();</div><div class="line">		JasperExportManager.exportReportToPdfStream(jasperPrint, ouputStream);</div><div class="line">		ouputStream.flush();</div><div class="line">		ouputStream.close();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 导出html</div><div class="line">	 */</div><div class="line">	private static void exportHtml(JasperPrint jasperPrint,</div><div class="line">								   String defaultFilename, HttpServletRequest request,</div><div class="line">								   HttpServletResponse response) throws IOException, JRException &#123;</div><div class="line">		response.setContentType(&quot;text/html&quot;);</div><div class="line">		ServletOutputStream ouputStream = response.getOutputStream();</div><div class="line">		JRHtmlExporter exporter = new JRHtmlExporter();</div><div class="line">		exporter.setParameter(JRHtmlExporterParameter.IS_USING_IMAGES_TO_ALIGN,</div><div class="line">				Boolean.FALSE);</div><div class="line">		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);</div><div class="line">		exporter.setParameter(JRExporterParameter.CHARACTER_ENCODING, &quot;UTF-8&quot;);</div><div class="line">		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM, ouputStream);</div><div class="line"></div><div class="line">		exporter.exportReport();</div><div class="line"></div><div class="line">		ouputStream.flush();</div><div class="line">		ouputStream.close();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 导出word</div><div class="line">	 */</div><div class="line">	private static void exportWord(JasperPrint jasperPrint,</div><div class="line">								   String defaultFilename, HttpServletRequest request,</div><div class="line">								   HttpServletResponse response) throws JRException, IOException &#123;</div><div class="line">		response.setContentType(&quot;application/msword;charset=utf-8&quot;);</div><div class="line">		String defaultname = null;</div><div class="line">		if (defaultFilename.trim() != null &amp;&amp; defaultFilename != null) &#123;</div><div class="line">			defaultname = defaultFilename + &quot;.doc&quot;;</div><div class="line">		&#125; else &#123;</div><div class="line">			defaultname = &quot;export.doc&quot;;</div><div class="line">		&#125;</div><div class="line">		String fileName = new String(defaultname.getBytes(&quot;GBK&quot;), &quot;utf-8&quot;);</div><div class="line">		response.setHeader(&quot;Content-disposition&quot;, &quot;attachment; filename=&quot;</div><div class="line">				+ fileName);</div><div class="line">		JRExporter exporter = new JRRtfExporter();</div><div class="line">		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);</div><div class="line">		exporter.setParameter(JRExporterParameter.OUTPUT_STREAM,</div><div class="line">				response.getOutputStream());</div><div class="line"></div><div class="line">		exporter.exportReport();</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 按照类型导出不同格式文件</div><div class="line">	 *</div><div class="line">	 * @param datas</div><div class="line">	 *            数据</div><div class="line">	 * @param type</div><div class="line">	 *            文件类型</div><div class="line">	 * @param is</div><div class="line">	 *            jasper文件的来源</div><div class="line">	 * @param request</div><div class="line">	 * @param response</div><div class="line">	 * @param defaultFilename默认的导出文件的名称</div><div class="line">	 */</div><div class="line">	public static void export(String type, String defaultFilename, File is,</div><div class="line">							  HttpServletRequest request, HttpServletResponse response,</div><div class="line">							  Map parameters, Connection conn) &#123;</div><div class="line">		try &#123;</div><div class="line">			JasperReport jasperReport = (JasperReport) JRLoader.loadObject(is);</div><div class="line">			prepareReport(jasperReport, type);</div><div class="line"></div><div class="line">			JasperPrint jasperPrint = JasperFillManager.fillReport(</div><div class="line">					jasperReport, parameters, conn);</div><div class="line"></div><div class="line">			if (EXCEL_TYPE.equals(type)) &#123;</div><div class="line">				exportExcel(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125; else if (PDF_TYPE.equals(type)) &#123;</div><div class="line">				exportPdf(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125; else if (HTML_TYPE.equals(type)) &#123;</div><div class="line">				exportHtml(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125; else if (WORD_TYPE.equals(type)) &#123;</div><div class="line">				exportWord(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125;</div><div class="line">		&#125; catch (Exception e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	public static void export(String type, String defaultFilename, File is,</div><div class="line">							  HttpServletRequest request, HttpServletResponse response,</div><div class="line">							  Map parameters, JRDataSource conn) &#123;</div><div class="line">		try &#123;</div><div class="line">			JasperReport jasperReport = (JasperReport) JRLoader.loadObject(is);</div><div class="line">			prepareReport(jasperReport, type);</div><div class="line"></div><div class="line">			JasperPrint jasperPrint = JasperFillManager.fillReport(</div><div class="line">					jasperReport, parameters, conn);</div><div class="line"></div><div class="line">			if (EXCEL_TYPE.equals(type)) &#123;</div><div class="line">				exportExcel(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125; else if (PDF_TYPE.equals(type)) &#123;</div><div class="line">				exportPdf(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125; else if (HTML_TYPE.equals(type)) &#123;</div><div class="line">				exportHtml(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125; else if (WORD_TYPE.equals(type)) &#123;</div><div class="line">				exportWord(jasperPrint, defaultFilename, request, response);</div><div class="line">			&#125;</div><div class="line">		&#125; catch (Exception e) &#123;</div><div class="line">			e.printStackTrace();</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line"></div><div class="line">	/**</div><div class="line">	 * 输出html静态页面，必须注入request和response</div><div class="line">	 *</div><div class="line">	 * @param jasperPath</div><div class="line">	 * @param params</div><div class="line">	 * @param sourceList</div><div class="line">	 * @param imageUrl</div><div class="line">	 *            报表文件使用的图片路径，比如 ../servlets/image?image=</div><div class="line">	 * @throws JRException</div><div class="line">	 * @throws IOException</div><div class="line">	 * @throws ServletException</div><div class="line">	 */</div><div class="line">	public static void showHtml(String defaultFilename, String reportfile,</div><div class="line">								HttpServletRequest request, HttpServletResponse response, Map parameters,</div><div class="line">								JRDataSource conn) throws JRException, IOException &#123;</div><div class="line"></div><div class="line"></div><div class="line">		request.setCharacterEncoding(&quot;utf-8&quot;);</div><div class="line">		response.setCharacterEncoding(&quot;utf-8&quot;);</div><div class="line">		response.setContentType(&quot;text/html&quot;);</div><div class="line"></div><div class="line">		JRAbstractExporter exporter = getJRExporter(DocType.HTML);</div><div class="line"></div><div class="line">		JasperPrint jasperPrint = JasperFillManager.fillReport(reportfile,</div><div class="line">				parameters, conn);</div><div class="line">		request.getSession().setAttribute(</div><div class="line">				ImageServlet.DEFAULT_JASPER_PRINT_SESSION_ATTRIBUTE,</div><div class="line">				jasperPrint);</div><div class="line"></div><div class="line">		PrintWriter out = response.getWriter();</div><div class="line"></div><div class="line">		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);</div><div class="line">		exporter.setParameter(JRExporterParameter.OUTPUT_WRITER, out);</div><div class="line">		exporter.setParameter(</div><div class="line">				JRHtmlExporterParameter.IS_USING_IMAGES_TO_ALIGN,</div><div class="line">				Boolean.FALSE);</div><div class="line">		exporter.exportReport();</div><div class="line">		out.flush();</div><div class="line"></div><div class="line">	&#125;</div><div class="line">	public static void showHtml(String defaultFilename, String reportfile,</div><div class="line">								HttpServletRequest request, HttpServletResponse response, Map parameters,</div><div class="line">								Connection conn) throws JRException, IOException &#123;</div><div class="line"></div><div class="line"></div><div class="line">		request.setCharacterEncoding(&quot;utf-8&quot;);</div><div class="line">		response.setCharacterEncoding(&quot;utf-8&quot;);</div><div class="line">		response.setContentType(&quot;text/html&quot;);</div><div class="line"></div><div class="line">		JRAbstractExporter exporter = getJRExporter(DocType.HTML);</div><div class="line"></div><div class="line">		JasperPrint jasperPrint = JasperFillManager.fillReport(reportfile,</div><div class="line">				parameters, conn);</div><div class="line">		request.getSession().setAttribute(</div><div class="line">				ImageServlet.DEFAULT_JASPER_PRINT_SESSION_ATTRIBUTE,</div><div class="line">				jasperPrint);</div><div class="line"></div><div class="line">		PrintWriter out = response.getWriter();</div><div class="line"></div><div class="line">		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);</div><div class="line">		exporter.setParameter(JRExporterParameter.OUTPUT_WRITER, out);</div><div class="line">		exporter.setParameter(</div><div class="line">				JRHtmlExporterParameter.IS_USING_IMAGES_TO_ALIGN,</div><div class="line">				Boolean.FALSE);</div><div class="line">		exporter.exportReport();</div><div class="line">		out.flush();</div><div class="line"></div><div class="line">	&#125;</div><div class="line">	public static void showPdf(String defaultFilename, String reportfile,</div><div class="line">							   HttpServletRequest request, HttpServletResponse response, Map parameters,</div><div class="line">							   Connection conn) throws JRException, IOException &#123;</div><div class="line"></div><div class="line"></div><div class="line">		request.setCharacterEncoding(&quot;utf-8&quot;);</div><div class="line">		response.setCharacterEncoding(&quot;utf-8&quot;);</div><div class="line">		response.setContentType(&quot;text/html&quot;);</div><div class="line">		response.setContentType(&quot;application/pdf&quot;);</div><div class="line"></div><div class="line">		JRAbstractExporter exporter = getJRExporter(DocType.PDF);</div><div class="line"></div><div class="line">		JasperPrint jasperPrint = JasperFillManager.fillReport(reportfile,</div><div class="line">				parameters, conn);</div><div class="line">		request.getSession().setAttribute(</div><div class="line">				ImageServlet.DEFAULT_JASPER_PRINT_SESSION_ATTRIBUTE,</div><div class="line">				jasperPrint);</div><div class="line"></div><div class="line">		PrintWriter out = response.getWriter();</div><div class="line"></div><div class="line">		exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);</div><div class="line">		exporter.setParameter(JRExporterParameter.OUTPUT_WRITER, out);</div><div class="line">		exporter.exportReport();</div><div class="line">		out.flush();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/报表/" rel="tag"># 报表</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/17/hello-world/" rel="next" title="Hello World">
+                <i class="fa fa-chevron-left"></i> Hello World
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/upload/myImage.jpeg"
+                alt="monkey_lxb" />
+            
+              <p class="site-author-name" itemprop="name">monkey_lxb</p>
+              <p class="site-description motion-element" itemprop="description">分享攻克过的技术难关，以及日常</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据准备"><span class="nav-number">2.</span> <span class="nav-text">数据准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#制作模板"><span class="nav-number">3.</span> <span class="nav-text">制作模板</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#主报表相关配置"><span class="nav-number">3.0.1.</span> <span class="nav-text">主报表相关配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#子报表相关配置"><span class="nav-number">3.0.2.</span> <span class="nav-text">子报表相关配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#统计相关属性配置"><span class="nav-number">3.0.3.</span> <span class="nav-text">统计相关属性配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#外观和字体配置"><span class="nav-number">3.0.4.</span> <span class="nav-text">外观和字体配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#JAVA相关"><span class="nav-number">3.0.5.</span> <span class="nav-text">JAVA相关</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">monkey_lxb</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.3</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
